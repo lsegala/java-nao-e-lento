@@ -7,6 +7,8 @@
   .\scripts\rodada.ps1 2     # código otimizado, virtual threads, G1 (3a é igual a 2)
   .\scripts\rodada.ps1 3b    # código otimizado, virtual threads, ZGC
   $env:JAVA_OPTS = '-XX:+UseCompactObjectHeaders'; .\scripts\rodada.ps1 2
+  $env:THREADS = '50'; .\scripts\rodada.ps1 1          # threads do Tomcat (padrão 200)
+  $env:LATENCIA_MS = '300'; .\scripts\rodada.ps1 1     # latência simulada do serviço externo (padrão 150)
 #>
 param(
     [Parameter(Mandatory = $true)]
@@ -34,7 +36,10 @@ $extras = Get-EnvOrDefault 'JAVA_OPTS' ''
 if ($extras) {
     $argumentosJava += ($extras -split '\s+' | Where-Object { $_ })
 }
-$argumentosJava += @('-jar', $JarDemo, "--demo.modo=$modo", "--spring.threads.virtual.enabled=$vt")
+$threads = Get-EnvOrDefault 'THREADS' '200'
+$latencia = Get-EnvOrDefault 'LATENCIA_MS' '150'
+$argumentosJava += @('-jar', $JarDemo, "--demo.modo=$modo", "--spring.threads.virtual.enabled=$vt",
+    "--server.tomcat.threads.max=$threads", "--demo.latencia-externa-ms=$latencia")
 
 Write-Host ">> Rodada ${Rodada}: $desc"
 & java @argumentosJava

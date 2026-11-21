@@ -11,22 +11,22 @@ import demo.relatorio.RelatorioLento;
 import demo.relatorio.RelatorioOtimizado;
 
 /**
- * Busca os dados e monta o relatório.
+ * Busca os dados, espera a cotação e monta o relatório.
  * A versão do montador vem da propriedade demo.modo (lento | otimizado), então trocar de
  * rodada não exige recompilar: basta reiniciar com outro argumento.
  */
 @Service
 public class RelatorioService {
 
-    private final PedidoRepository repositorio;
-    private final CotacaoClient cotacoes;
+    private final DadosEmMemoria dados;
+    private final ServicoDeCotacao cotacoes;
     private final MontadorDeRelatorio montador;
     private final String modo;
 
-    public RelatorioService(PedidoRepository repositorio,
-                            CotacaoClient cotacoes,
+    public RelatorioService(DadosEmMemoria dados,
+                            ServicoDeCotacao cotacoes,
                             @Value("${demo.modo:lento}") String modo) {
-        this.repositorio = repositorio;
+        this.dados = dados;
         this.cotacoes = cotacoes;
         this.modo = modo;
         this.montador = switch (modo) {
@@ -37,12 +37,12 @@ public class RelatorioService {
     }
 
     public Optional<String> gerar(long clienteId) {
-        Optional<String> cliente = repositorio.nomeDoCliente(clienteId);
+        Optional<String> cliente = dados.nomeDoCliente(clienteId);
         if (cliente.isEmpty()) {
             return Optional.empty();
         }
-        List<Pedido> pedidos = repositorio.pedidosDoCliente(clienteId);
-        Cotacao cotacao = cotacoes.buscar(clienteId);   // ~150 ms esperando a rede (gargalo 5)
+        List<Pedido> pedidos = dados.pedidosDoCliente(clienteId);
+        Cotacao cotacao = cotacoes.buscar(clienteId);   // ~150 ms de espera (gargalo 5)
         return Optional.of(montador.montar(cliente.get(), cotacao, pedidos));
     }
 

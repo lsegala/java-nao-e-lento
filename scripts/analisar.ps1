@@ -31,3 +31,7 @@ foreach ($view in $views) {
         Write-Host "(view '$view' não disponível neste JDK)"
     }
 }
+
+Write-Host ''
+Write-Host '================ resumo para o slide 22 ================'
+& java (Join-Path $PSScriptRoot 'ResumoGc.java') $Arquivo

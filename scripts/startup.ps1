@@ -5,7 +5,7 @@
   .\scripts\startup.ps1 preparar-aot      # JDK 25: extrai o JAR e grava o AOT cache (execução de treino)
   .\scripts\startup.ps1 preparar-native   # GraalVM: compila o executável nativo (leva minutos)
   .\scripts\startup.ps1 comparar          # mede o que estiver disponível
-  Precisa do Postgres e do serviço externo no ar, e da porta 8080 livre.
+  Precisa da porta 8080 livre.
 #>
 param(
     [ValidateSet('preparar-aot', 'preparar-native', 'comparar')]
@@ -19,11 +19,6 @@ $jarExtraido = "$extraido/java-nao-e-lento-demo.jar"
 $aot = 'target/app.aot'
 $nativo = if ($env:OS -eq 'Windows_NT' -or $IsWindows) { 'target/java-nao-e-lento-demo.exe' } else { 'target/java-nao-e-lento-demo' }
 $argumentosApp = @('--demo.modo=otimizado')
-$javaPath = 'java'
-if ($env:JAVA_HOME){
-    $javaPath = $env:JAVA_HOME
-    $javaPath += "\bin\java"
-}
 
 Add-Type -AssemblyName System.Net.Http
 $http = New-Object System.Net.Http.HttpClient
@@ -65,9 +60,9 @@ switch ($Acao) {
     'preparar-aot' {
         # O AOT cache só aceita JARs comuns no classpath, não os JARs aninhados do fat jar do Spring Boot.
         if (Test-Path $extraido) { Remove-Item -Recurse -Force $extraido }
-        & $javaPath '-Djarmode=tools' -jar $JarDemo extract --destination $extraido
+        & java '-Djarmode=tools' -jar $JarDemo extract --destination $extraido
         # Execução de treino: sobe o contexto, sai logo depois e grava o cache (JEP 514, JDK 25).
-        & $javaPath "-XX:AOTCacheOutput=$aot" '-Dspring.context.exit=onRefresh' -jar $jarExtraido @argumentosApp
+        & java "-XX:AOTCacheOutput=$aot" '-Dspring.context.exit=onRefresh' -jar $jarExtraido @argumentosApp
         Write-Host ">> AOT cache gravado em $aot"
     }
     'preparar-native' {

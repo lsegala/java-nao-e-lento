@@ -4,7 +4,7 @@
 #   ./scripts/startup.sh preparar-aot   # JDK 25: extrai o JAR e grava o AOT cache (execução de treino)
 #   ./scripts/startup.sh preparar-native # GraalVM: compila o executável nativo (leva minutos)
 #   ./scripts/startup.sh comparar        # mede o que estiver disponível
-# Precisa do Postgres e do serviço externo no ar, e da porta 8080 livre.
+# Precisa da porta 8080 livre.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 

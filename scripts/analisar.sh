@@ -16,3 +16,7 @@ for VIEW in hot-methods allocation-by-class contention-by-site gc-pauses deoptim
   echo "================ $VIEW ================"
   jfr view --width 160 "$VIEW" "$ARQUIVO" || echo "(view '$VIEW' não disponível neste JDK)"
 done
+
+echo
+echo "================ resumo para o slide 22 ================"
+java "$(dirname "$0")/ResumoGc.java" "$ARQUIVO"

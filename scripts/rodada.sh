@@ -6,6 +6,8 @@
 #   2   código otimizado, virtual threads, G1   (3a é igual a 2)
 #   3b  código otimizado, virtual threads, ZGC
 # Flags extras para a JVM: JAVA_OPTS="-XX:+UseCompactObjectHeaders" ./scripts/rodada.sh 2
+# Threads do Tomcat (padrão 200): THREADS=50 ./scripts/rodada.sh 1
+# Latência simulada do serviço externo (padrão 150 ms): LATENCIA_MS=300 ./scripts/rodada.sh 1
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -30,4 +32,6 @@ echo ">> Rodada $1: $DESC"
 # shellcheck disable=SC2086
 exec java $HEAP $GC ${JAVA_OPTS:-} -jar "$JAR" \
   --demo.modo="$MODO" \
-  --spring.threads.virtual.enabled="$VT"
+  --spring.threads.virtual.enabled="$VT" \
+  --server.tomcat.threads.max="${THREADS:-200}" \
+  --demo.latencia-externa-ms="${LATENCIA_MS:-150}"
