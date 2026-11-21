@@ -1,0 +1,8 @@
+target/
+bench/target/
+resultados/
+*.jfr
+*.aot
+.idea/
+*.iml
+.vscode/
